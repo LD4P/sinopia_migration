@@ -1,0 +1,92 @@
+# This is a Trellis-based configuration.
+version: "3"
+services:
+  editor:
+    build:
+      image: ld4p/sinopia_editor:3.0.0
+      args:
+        - USE_FIXTURES='false'
+        - TRELLIS_BASE_URL
+    environment:
+      INDEX_URL: http://search:9200
+    ports:
+      - 8000:8000
+    depends_on:
+      - platform
+      - pipeline
+  pipeline:
+    image: ld4p/sinopia_indexing_pipeline:1.0.26
+    environment:
+      INDEX_URL: http://search:9200
+      BROKER_HOST: broker
+    depends_on:
+      - broker
+      - search
+      - platform
+  search:
+    image: ld4p/sinopia_elasticsearch:latest
+    entrypoint:
+      - elasticsearch
+      - -Ehttp.port=9200
+      - -Ehttp.cors.enabled=true
+      - -Ehttp.cors.allow-origin=http://searchui:1358,http://localhost:1358,http://127.0.0.1:1358
+      - -Ehttp.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
+      - -Ehttp.cors.allow-credentials=true
+      - -Etransport.host=localhost
+      - -Ebootstrap.system_call_filter=false
+    user: elasticsearch
+    ports:
+      - 9200:9200
+      - 9300:9300
+  searchui:
+    image: appbaseio/dejavu:latest
+    ports:
+      - 1358:1358
+    depends_on:
+      - search
+  platformdata:
+    image: ld4p/sinopia_acl:latest
+    environment:
+      INSIDE_CONTAINER: 'true'
+      TRELLIS_BASE_URL: http://platform:8080
+      COGNITO_USER_POOL_ID: ${COGNITO_USER_POOL_ID:-us-west-2_CGd9Wq136}
+      AWS_REGION: ${AWS_REGION:-us-west-2}
+      COGNITO_ADMIN_PASSWORD: "${COGNITO_ADMIN_PASSWORD}" # add to .env file (DO NOT CHECK IN)
+      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}" # add to .env file (DO NOT CHECK IN)
+      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}" # add to .env file (DO NOT CHECK IN)
+    command: dockerize -wait tcp://platform:8080 -timeout 3m bin/migrate
+    depends_on:
+      - platform
+  platform:
+    image: ld4p/trellis-ext-db:latest
+    environment:
+      TRELLIS_BASE_URL: http://platform:8080
+      TRELLIS_LOGGING_LEVEL: INFO
+      TRELLIS_CONSOLE_LOGGING_THRESHOLD: INFO
+      COGNITO_USER_POOL_ID: ${COGNITO_USER_POOL_ID:-us-west-2_CGd9Wq136}
+      AWS_REGION: ${AWS_REGION:-us-west-2}
+    ports:
+      - 8080:8080
+      - 8081:8081
+    depends_on:
+      - broker
+      - database
+      - migration
+  broker:
+    image: rmohr/activemq
+    ports:
+      - 61613:61613
+  database:
+    image: postgres:11
+    environment:
+      POSTGRES_USER: sinopia
+      POSTGRES_DB: sinopia
+      POSTGRES_PASSWORD: S1n0p1a
+      PGDATA: /var/lib/postgresql/data/pgdata/mydata
+    ports:
+      - 5432:5432
+  migration:
+    image: ld4p/trellis-ext-db:latest
+    command: ["/opt/trellis/bin/trellis-db", "db", "migrate", "/opt/trellis/etc/config.yml"]
+    depends_on:
+      - database

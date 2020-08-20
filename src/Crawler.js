@@ -1,5 +1,4 @@
 import Request from './Request.js'
-import asyncPool from 'tiny-async-pool'
 
 const linkHeaderRegex = /<(?<link>.+)>; rel="type"/
 
@@ -43,9 +42,11 @@ export default class Crawler {
       await onResource(response.body, uri, types)
 
       const containedResourcesArray = this.containedResourcesArray(response.body)
-      // console.log(`${uri} contains ${containedResourcesArray}`)
 
-      await asyncPool(2, containedResourcesArray, (child) => this.request(child, onResource))
+      for (const child of containedResourcesArray) {
+        await this.request(child, onResource)
+        await new Promise(r => setTimeout(r, 500))
+      }
 
     } catch(error) {
       console.error(`during crawl, error making mime type-specific request to ${uri}: ${error}`, error)

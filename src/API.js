@@ -1,18 +1,16 @@
 import superagent from 'superagent'
 
 export default class API {
-  constructor(jwt) {
-    this.jwt = jwt
+  constructor() {
   }
 
-  post(resource, postUri, newUri, templateId) {
-    const body = {data: resource, user: 'justinlittman', group: 'ld4p'}
+  post(resource, postUri, newUri, templateId, addlProps) {
+    const body = {data: resource, user: 'havram ', ...addlProps}
     if(postUri !== newUri) body.uri = newUri
     if(templateId) body.templateId = templateId
     superagent
       .post(postUri)
       .send(body)
-      .set('Authorization', `Bearer ${this.jwt}`)
       .set('accept', 'json')
       .then((res) =>{
         if(!res.ok) {

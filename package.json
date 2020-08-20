@@ -18,11 +18,10 @@
     "@rdfjs/serializer-jsonld": "^1.2.2",
     "@rdfjs/serializer-jsonld-ext": "^2.0.0",
     "concat-stream": "^2.0.0",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.20",
     "rdf-ext": "^1.3.0",
     "shortid": "^2.2.15",
     "superagent": "^5.3.1",
-    "tiny-async-pool": "^1.1.0",
     "uninstall": "0.0.0"
   }
 }

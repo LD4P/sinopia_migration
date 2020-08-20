@@ -9,10 +9,10 @@ import concatStream from 'concat-stream'
 
 
 export default class Migrator {
-  constructor(platformUrl, apiUrl, retainUri, jwt) {
+  constructor(platformUrl, apiUrl, retainUri) {
     this.apiUrl = apiUrl
     this.crawler = new Crawler(platformUrl)
-    this.api = new API(jwt)
+    this.api = new API()
     this.templateTransformer = new TemplateTransformer(apiUrl)
     this.retainUri = retainUri
   }
@@ -29,16 +29,20 @@ export default class Migrator {
         const newUri = this.retainUri ? uri : postUri
         console.log(`${uri} -> template (as ${newUri})`)
         const destTemplate = await this.templateTransformer.transform(resource, newUri)
-        this.api.post(destTemplate, postUri, newUri, 'sinopia:template:resource')
+        await this.api.post(destTemplate, postUri, newUri, 'sinopia:template:resource', {group: 'ld4p', types: ['http://sinopia.io/vocabulary/ResourceTemplate']})
       } else {
         const id = uri.match(/.*\/\/.*\/repository\/(.*)/)[1]
         const postUri = `${this.apiUrl}/${id}`
         const newUri = this.retainUri ? uri : postUri
+        const group = id.split('/')[0]
         console.log(`${uri} -> resource (as ${newUri})`)
         const dataset = await this.datasetFromJsonld(resource, uri, newUri)
         const templateId = this.findRootResourceTemplateId(newUri, dataset)
         const newJsonld = await this.jsonldFromDataset(dataset)
-        this.api.post(newJsonld, postUri, newUri, templateId)
+        const addlProps = this.findBfRefs(newUri, dataset)
+        addlProps.group = group
+        addlProps.types = this.findType(newUri, dataset)
+        await this.api.post(newJsonld, postUri, newUri, templateId, addlProps)
       }
     })
   }
@@ -83,11 +87,39 @@ export default class Migrator {
   }
 
   findRootResourceTemplateId(resourceURI, dataset) {
-  const rtQuads = dataset.match(rdf.namedNode(resourceURI), rdf.namedNode('http://sinopia.io/vocabulary/hasResourceTemplate')).toArray()
-  if (rtQuads.length !== 1) {
-    return null
+    const rtQuads = dataset.match(rdf.namedNode(resourceURI), rdf.namedNode('http://sinopia.io/vocabulary/hasResourceTemplate')).toArray()
+    if (rtQuads.length !== 1) {
+      return null
+    }
+    return rtQuads[0].object.value
   }
-  return rtQuads[0].object.value
-}
 
+  findType(resourceURI, dataset) {
+    const quads = dataset.match(rdf.namedNode(resourceURI), rdf.namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')).toArray()
+    return quads.map((quad) => quad.object.value)
+  }
+
+  findBfRefs(resourceURI, dataset) {
+    return {
+      bfAdminMetadataRefs: this.findBfRef(resourceURI, ['http://id.loc.gov/ontologies/bibframe/adminMetadata'], dataset),
+      bfInstanceRefs: this.findBfRef(resourceURI, ['http://id.loc.gov/ontologies/bibframe/itemOf', 'http://id.loc.gov/ontologies/bibframe/hasInstance'], dataset),
+      bfItemRefs: this.findBfRef(resourceURI, ['http://id.loc.gov/ontologies/bibframe/hasItem'], dataset),
+      bfWorkRefs: this.findBfRef(resourceURI, ['http://id.loc.gov/ontologies/bibframe/instanceOf'], dataset),
+    }
+  }
+
+  findBfRef(resourceURI, propertyURIs, dataset) {
+    const uris = []
+    propertyURIs.forEach((propertyURI) => {
+      const quads = dataset.match(rdf.namedNode(resourceURI), rdf.namedNode(propertyURI)).toArray()
+      quads.forEach((quad) => {
+        const uri = quad.object.value
+        if(!uri) return
+        const id = uri.match(/.*\/\/.*\/repository\/(.*)/)[1]
+        const newUri = `${this.apiUrl}/${id}`
+        uris.push(this.retainUri ? uri : newUri)
+      })
+    })
+    return uris
+  }
 }

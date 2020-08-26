@@ -69,6 +69,7 @@
       },
       "mandatory": "false",
       "repeatable": "true",
+      "ordered": "true",
       "type": "resource",
       "remark": "The resource's property templates."
     }

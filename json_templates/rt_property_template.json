@@ -6,7 +6,7 @@
   "propertyTemplates": [
     {
       "propertyLabel": "Property",
-      "propertyURI": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      "propertyURI": "http://sinopia.io/vocabulary/hasPropertyUri",
       "resourceTemplates": [],
       "mandatory": "true",
       "repeatable": "false",
@@ -41,23 +41,23 @@
       "remark": "The property's remark (URL)."
     },
     {
-      "propertyLabel": "Cardinality",
-      "propertyURI": "http://sinopia.io/vocabulary/hasCardinality",
+      "propertyLabel": "Property attributes",
+      "propertyURI": "http://sinopia.io/vocabulary/hasPropertyAttribute",
       "resourceTemplates": [],
       "valueConstraint": {
         "valueTemplateRefs": [],
         "useValuesFrom": [
-          "file:/cardinality.json"
+          "file:/propertyAttribute.json"
         ],
         "valueDataType": {
-          "dataTypeURI": "http://sinopia.io/vocabulary/Cardinality"
+          "dataTypeURI": "http://sinopia.io/vocabulary/PropertyAttribute"
         },
         "defaults": []
       },
       "mandatory": "false",
       "repeatable": "true",
       "type": "resource",
-      "remark": "Whether is property is repeatable and/or required."
+      "remark": "Whether is property is repeatable, required and/or ordered."
     },
     {
       "propertyLabel": "Property type",
@@ -69,7 +69,7 @@
           "file:/propertyType.json"
         ],
         "valueDataType": {
-          "dataTypeURI": "http://sinopia.io/vocabulary/PropertyCardinality"
+          "dataTypeURI": "http://sinopia.io/vocabulary/PropertyType"
         },
         "defaults": []
       },

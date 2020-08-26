@@ -16,7 +16,7 @@ export default class TemplatesToResourceBuilder {
    */
   build() {
     this.buildFromSubjectTemplate()
-    const propertyTemplatesProperty = this.newProperty(this.resource, 'http://sinopia.io/vocabulary/hasPropertyTemplate', 'resource')
+    const propertyTemplatesProperty = this.newProperty(this.resource, 'http://sinopia.io/vocabulary/hasPropertyTemplate', 'resource', true)
     this.resource.properties.push(propertyTemplatesProperty)
     this.subjectTemplate.propertyTemplates.forEach((propertyTemplate) => this.buildFromPropertyTemplate(propertyTemplate, propertyTemplatesProperty))
     return this.resource
@@ -56,20 +56,20 @@ export default class TemplatesToResourceBuilder {
 
   }
 
-  buildUriProperty(subject, propertyUri, uris) {
+  buildUriProperty(subject, propertyUri, uris, ordered) {
     if(_.isEmpty(uris)) return
-    const property = this.newProperty(subject, propertyUri, 'uri')
+    const property = this.newProperty(subject, propertyUri, 'uri', ordered)
     subject.properties.push(property)
     uris.forEach((uri) => {
       if(uri.uri) property.values.push(this.newUriValue(property, uri.uri, uri.label))
     })
   }
 
-  newProperty(subject, propertyUri, propertyType) {
+  newProperty(subject, propertyUri, propertyType, ordered) {
     return {
       key: shortid.generate(),
       subject,
-      propertyTemplate: { uri: propertyUri, type: propertyType},
+      propertyTemplate: { uri: propertyUri, type: propertyType, ordered: !!ordered},
       values: [],
     }
   }
@@ -77,15 +77,16 @@ export default class TemplatesToResourceBuilder {
   buildFromPropertyTemplate(propertyTemplate, propertyTemplatesProperty) {
     const subject = this.newSubject('sinopia:template:property', 'http://sinopia.io/vocabulary/PropertyTemplate')
     propertyTemplatesProperty.values.push(this.newValueSubject(propertyTemplatesProperty, subject))
-    this.buildUriProperty(subject, 'http://www.w3.org/1999/02/22-rdf-syntax-ns#', [{uri: propertyTemplate.uri}])
+    this.buildUriProperty(subject, 'http://sinopia.io/vocabulary/hasPropertyUri', [{uri: propertyTemplate.uri}])
     this.buildLiteralProperty(subject, 'http://www.w3.org/2000/01/rdf-schema#label', [{literal: propertyTemplate.label}])
     this.buildLiteralProperty(subject, 'http://sinopia.io/vocabulary/hasRemark', [{literal: propertyTemplate.remark}])
     this.buildUriProperty(subject, 'http://sinopia.io/vocabulary/hasRemarkUrl', [{uri: propertyTemplate.remarkUrl}])
 
-    const cardinalityUris = []
-    if(propertyTemplate.required) cardinalityUris.push({uri: 'http://sinopia.io/vocabulary/cardinality/required'})
-    if(propertyTemplate.repeatable) cardinalityUris.push({uri: 'http://sinopia.io/vocabulary/cardinality/repeatable'})
-    this.buildUriProperty(subject, 'http://sinopia.io/vocabulary/hasCardinality', cardinalityUris)
+    const propertyAttrUris = []
+    if(propertyTemplate.required) propertyAttrUris.push({uri: 'http://sinopia.io/vocabulary/propertyAttribute/required'})
+    if(propertyTemplate.repeatable) propertyAttrUris.push({uri: 'http://sinopia.io/vocabulary/propertyAttribute/repeatable'})
+    if(propertyTemplate.ordered) propertyAttrUris.push({uri: 'http://sinopia.io/vocabulary/propertyAttribute/ordered'})
+    this.buildUriProperty(subject, 'http://sinopia.io/vocabulary/hasPropertyAttribute', propertyAttrUris)
 
     this.buildUriProperty(subject, 'http://sinopia.io/vocabulary/hasPropertyType', [{uri: `http://sinopia.io/vocabulary/propertyType/${propertyTemplate.type}`}])
 

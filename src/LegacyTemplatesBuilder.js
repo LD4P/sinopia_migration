@@ -44,6 +44,7 @@ export default class LegacyTemplatesBuilder {
       uri: propertyTemplate.propertyURI,
       required: propertyTemplate.mandatory === 'true',
       repeatable: propertyTemplate.repeatable === 'true',
+      ordered: propertyTemplate.ordered === 'true',
       defaults: this.defaultsFor(propertyTemplate, type),
       remark: !remarkUrl ? propertyTemplate.remark : null,
       remarkUrl: remarkUrl || null,
@@ -66,17 +67,6 @@ export default class LegacyTemplatesBuilder {
     }
     return remarkUrl
   }
-
-  // componentFor(propertyTemplate, type) {
-  //   let component = null
-  //   if (type === 'resource') return 'NestedResource'
-  //   try {
-  //     component = getTagNameForPropertyTemplate(propertyTemplate)
-  //   } catch {
-  //     // Ignore
-  //   }
-  //   return component
-  // }
 
   typeFor(propertyTemplate) {
     if (!_.isEmpty(propertyTemplate?.valueConstraint?.valueTemplateRefs) && propertyTemplate.type === 'resource') {

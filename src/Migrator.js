@@ -113,6 +113,7 @@ export default class Migrator {
     propertyURIs.forEach((propertyURI) => {
       const quads = dataset.match(rdf.namedNode(resourceURI), rdf.namedNode(propertyURI)).toArray()
       quads.forEach((quad) => {
+        if(quad.object.termType !== 'NamedNode') return
         const uri = quad.object.value
         if(!uri) return
         const id = uri.match(/.*\/\/.*\/repository\/(.*)/)[1]

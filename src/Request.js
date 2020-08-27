@@ -5,12 +5,25 @@ export default class Request {
    * @param {string} uri - URI to make request to
    * @param {string} typeURIs = LDP type URIs
    */
-  constructor(uri, typeURIs) {
+  constructor(uri, types, provenance) {
     this.uri = uri
-    this.agent = superagent.get(this.uri)
-      // .set('prefer', 'return=representation; include="http://www.trellisldp.org/ns/trellis#PreferAudit"')
-    if (typeURIs) {
-      this.agent = this.agent.accept(this.mimeTypeFrom(typeURIs))
+    if (!types) {
+      this.agent = superagent.get(this.uri)
+    } else if (types.includes('http://www.w3.org/ns/ldp#NonRDFSource')) {
+      if(provenance) {
+        this.agent = superagent.get(`${this.uri}?ext=description`)
+          .accept('application/ld+json')
+          .set('prefer', 'return=representation; include="http://www.trellisldp.org/ns/trellis#PreferAudit"')
+      } else {
+        this.agent = superagent.get(this.uri)
+          .accept('application/json')
+      }
+    } else {
+      this.agent = superagent.get(this.uri)
+        .accept('application/ld+json')
+      if(provenance) {
+        this.agent = this.agent.set('prefer', 'return=representation; include="http://www.trellisldp.org/ns/trellis#PreferAudit"')
+      }
     }
   }
 
@@ -30,16 +43,5 @@ export default class Request {
         console.error(`error resolving ${this.uri}: ${err.message}`, err)
         return null
       })
-  }
-
-  /**
-   * Returns MIME type given LDP resource types
-   * @param {Array} types - LDP type URIs of object
-   * @returns {string} MIME type
-   */
-  mimeTypeFrom(types) {
-    if (types.includes('http://www.w3.org/ns/ldp#NonRDFSource'))
-      return 'application/json'
-    return 'application/ld+json'
   }
 }

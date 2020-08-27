@@ -5,7 +5,7 @@ export default class API {
   }
 
   post(resource, postUri, newUri, templateId, addlProps) {
-    const body = {data: resource, user: 'havram ', ...addlProps}
+    const body = {data: resource, ...addlProps}
     if(postUri !== newUri) body.uri = newUri
     if(templateId) body.templateId = templateId
     superagent

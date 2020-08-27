@@ -1,25 +1,25 @@
 import Crawler from './Crawler.js'
 import TemplateTransformer from './TemplateTransformer.js'
 import API from './API.js'
+import UserMap from './UserMap.js'
 import rdf from 'rdf-ext'
 import { Readable } from 'stream'
 import ParserJsonld from '@rdfjs/parser-jsonld'
 import SerializerJsonld from '@rdfjs/serializer-jsonld-ext'
 import concatStream from 'concat-stream'
 
-
 export default class Migrator {
-  constructor(platformUrl, apiUrl, retainUri) {
+  constructor(platformUrl, apiUrl, userFile, retainUri) {
     this.apiUrl = apiUrl
     this.crawler = new Crawler(platformUrl)
     this.api = new API()
+    this.userMap = new UserMap(userFile)
     this.templateTransformer = new TemplateTransformer(apiUrl)
     this.retainUri = retainUri
   }
 
   async migrate() {
-    await this.crawler.crawl(async (resource, uri, types) => {
-      if (types.includes('http://www.w3.org/ns/ldp#BasicContainer')) return
+    await this.crawler.crawl(async (resource, provenanceResource, uri, types) => {
       if (types.includes('http://www.w3.org/ns/ldp#NonRDFSource')) {
         // The original URI for templates will be modified, even if retaining.
         // For example, https://trellis.development.sinopia.io/repository/ld4p/ld4p:RT:bf2:Monograph:Item:Un-nested
@@ -27,9 +27,17 @@ export default class Migrator {
         const id = uri.match(/.*\/\/.*\/repository\/ld4p\/(.*)/)[1]
         const postUri = `${this.apiUrl}/${id}`
         const newUri = this.retainUri ? uri : postUri
+        const provenanceDataset = await this.datasetFromJsonld(provenanceResource, uri, newUri)
+        const [user, timestamp] = this.findProvenanceInfo(provenanceDataset, newUri)
         console.log(`${uri} -> template (as ${newUri})`)
         const destTemplate = await this.templateTransformer.transform(resource, newUri)
-        await this.api.post(destTemplate, postUri, newUri, 'sinopia:template:resource', {group: 'ld4p', types: ['http://sinopia.io/vocabulary/ResourceTemplate']})
+        const addlProps = {
+          group: 'ld4p',
+          types: ['http://sinopia.io/vocabulary/ResourceTemplate'],
+          user,
+          timestamp
+        }
+        await this.api.post(destTemplate, postUri, newUri, 'sinopia:template:resource', addlProps)
       } else {
         const id = uri.match(/.*\/\/.*\/repository\/(.*)/)[1]
         const postUri = `${this.apiUrl}/${id}`
@@ -37,11 +45,15 @@ export default class Migrator {
         const group = id.split('/')[0]
         console.log(`${uri} -> resource (as ${newUri})`)
         const dataset = await this.datasetFromJsonld(resource, uri, newUri)
+        const provenanceDataset = await this.datasetFromJsonld(provenanceResource, uri, newUri)
+        const [user, timestamp] = this.findProvenanceInfo(provenanceDataset, newUri)
         const templateId = this.findRootResourceTemplateId(newUri, dataset)
         const newJsonld = await this.jsonldFromDataset(dataset)
         const addlProps = this.findBfRefs(newUri, dataset)
         addlProps.group = group
         addlProps.types = this.findType(newUri, dataset)
+        addlProps.user = user
+        addlProps.timestamp = timestamp
         await this.api.post(newJsonld, postUri, newUri, templateId, addlProps)
       }
     })
@@ -122,5 +134,18 @@ export default class Migrator {
       })
     })
     return uris
+  }
+
+  findProvenanceInfo(dataset, uri) {
+    const generatedByQuads = dataset.match(rdf.namedNode(uri), rdf.namedNode('http://www.w3.org/ns/prov#wasGeneratedBy')).toArray()
+    const provInfos = generatedByQuads.map((generatedByQuad) => {
+      const associatedWith = dataset.match(generatedByQuad.object, rdf.namedNode('http://www.w3.org/ns/prov#wasAssociatedWith')).toArray()[0].object.value
+      const atTime = dataset.match(generatedByQuad.object, rdf.namedNode('http://www.w3.org/ns/prov#atTime')).toArray()[0].object.value
+      return { atTime, associatedWith }
+    })
+    provInfos.sort((a, b) => new Date(b.atTime) - new Date(a.atTime))
+    const latestProvInfo = provInfos[0]
+    const username = this.userMap.usernameFor(latestProvInfo.associatedWith)
+    return [username, latestProvInfo.atTime]
   }
 }

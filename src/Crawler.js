@@ -37,9 +37,13 @@ export default class Crawler {
       // This request has the type information, so it can deal with both RDF and
       // non-RDF requests. Thus the body of the response is what we want to
       // index.
-      const response = await this.typeSpecificRequest(uri, types).response()
+      const response = await new Request(uri, types).response()
 
-      await onResource(response.body, uri, types)
+      if (!types.includes('http://www.w3.org/ns/ldp#BasicContainer')) {
+        const provenanceResponse = await new Request(uri, types, true).response()
+
+        await onResource(response.body, provenanceResponse.body, uri, types)
+      }
 
       const containedResourcesArray = this.containedResourcesArray(response.body)
 
@@ -99,14 +103,4 @@ export default class Crawler {
     return new Request(uri)
   }
 
-  /**
-   * Return a new Request instance w/ type information specified, to return RDF
-   * if the resource if an RDFSource and to return non-RDF if it is a
-   * NonRDFSource. This makes stubbing and testing easier.
-   *
-   * @private
-   */
-  typeSpecificRequest(uri, types) {
-    return new Request(uri, types)
-  }
 }

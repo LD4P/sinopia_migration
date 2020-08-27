@@ -17,13 +17,16 @@ bin/transformTemplate json_templates/rt_uri.json http://localhost:3000/repositor
 ```
 
 ## Load Mongo from Trellis
+Prerequisite:
+Retrieve a user backup file from the environment appropriate `sinopia-cognito` S3 bucket.
+
 Usage:
 ```
-bin/migrate <Trellis url> <API post url> <true to retain original URI>
+bin/migrate <Trellis url> <API post url> <user file> <true to retain original URI>
 ```
 For example:
 ```
-bin/migrate https://trellis.development.sinopia.io http://localhost:3000/repository false
+bin/migrate https://trellis.development.sinopia.io user-backup_dev.json http://localhost:3000/repository false
 ```
 
 Note: Set retain original URI to `true` when migrating a specific environment. Set to `false` when copying from one environment to another, e.g., from AWS development to local development.

@@ -17,7 +17,7 @@
       "propertyLabel": "Label",
       "propertyURI": "http://www.w3.org/2000/01/rdf-schema#label",
       "resourceTemplates": [],
-      "mandatory": "true",
+      "mandatory": "false",
       "repeatable": "false",
       "type": "literal",
       "remark": "Label"

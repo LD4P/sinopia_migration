@@ -23,13 +23,13 @@
       "remark": "The resource's class, e.g., http://id.loc.gov/ontologies/bibframe/AbbreviatedTitle."
     },
     {
-      "propertyLabel": "Label",
+      "propertyLabel": "Template Label",
       "propertyURI": "http://www.w3.org/2000/01/rdf-schema#label",
       "resourceTemplates": [],
       "mandatory": "true",
       "repeatable": "false",
       "type": "literal",
-      "remark": "The resource's label."
+      "remark": "The template's label."
     },
     {
       "propertyLabel": "Author",

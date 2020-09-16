@@ -1,6 +1,6 @@
 {
   "id": "sinopia:template:property",
-  "uri": "https://api.development.sinopia.io/repository/sinopia:template:property",
+  "uri": "https://api.development.sinopia.io/resource/sinopia:template:property",
   "user": "justinlittman",
   "group": "ld4p",
   "timestamp": "2020-08-27T01:08:56.541Z",
@@ -383,7 +383,7 @@
       ]
     },
     {
-      "@id": "https://api.development.sinopia.io/repository/sinopia:template:property",
+      "@id": "https://api.development.sinopia.io/resource/sinopia:template:property",
       "http://sinopia!io/vocabulary/hasResourceTemplate": [
         {
           "@value": "sinopia:template:resource"

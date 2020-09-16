@@ -13,7 +13,7 @@ bin/transformTemplate <source template.json> <API url> <true to replace dots> <t
 ```
 For example:
 ```
-bin/transformTemplate json_templates/rt_uri.json http://localhost:3000/repository true true
+bin/transformTemplate json_templates/rt_uri.json http://localhost:3000 true true
 ```
 
 ## Load Mongo from Trellis
@@ -22,11 +22,9 @@ Retrieve a user backup file from the environment appropriate `sinopia-cognito` S
 
 Usage:
 ```
-bin/migrate <Trellis url> <API post url> <user file> <true to retain original URI>
+bin/migrate <Trellis url> <API post url> <user file>
 ```
 For example:
 ```
-bin/migrate https://trellis.development.sinopia.io user-backup_dev.json http://localhost:3000/repository false
+bin/migrate https://trellis.development.sinopia.io user-backup_dev.json http://localhost:3000
 ```
-
-Note: Set retain original URI to `true` when migrating a specific environment. Set to `false` when copying from one environment to another, e.g., from AWS development to local development.

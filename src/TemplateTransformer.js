@@ -15,7 +15,7 @@ export default class TemplateTransformer {
     // Transform to a resource model for a resource template.
     const resource = new TemplatesToResourceBuilder(subjectTemplate).build()
     // Build a graph from resource.
-    const graph = new GraphBuilder(resource, uri || `${this.apiUrl}/${subjectTemplate.id}`).graph
+    const graph = new GraphBuilder(resource, uri || `${this.apiUrl}/resource/${subjectTemplate.id}`).graph
     // Transform the graph to jsonld
     return this.jsonldFromGraph(graph)
   }

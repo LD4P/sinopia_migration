@@ -1,6 +1,6 @@
 {
   "id": "sinopia:template:property:lookup",
-  "uri": "https://api.development.sinopia.io/repository/sinopia:template:property:lookup",
+  "uri": "https://api.development.sinopia.io/resource/sinopia:template:property:lookup",
   "user": "justinlittman",
   "group": "ld4p",
   "timestamp": "2020-08-27T01:08:55.779Z",
@@ -88,7 +88,7 @@
       ]
     },
     {
-      "@id": "https://api.development.sinopia.io/repository/sinopia:template:property:lookup",
+      "@id": "https://api.development.sinopia.io/resource/sinopia:template:property:lookup",
       "http://sinopia!io/vocabulary/hasResourceTemplate": [
         {
           "@value": "sinopia:template:resource"

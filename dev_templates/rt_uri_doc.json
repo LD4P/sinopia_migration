@@ -1,6 +1,6 @@
 {
   "id": "sinopia:template:uri",
-  "uri": "https://api.development.sinopia.io/repository/sinopia:template:uri",
+  "uri": "https://api.development.sinopia.io/resource/sinopia:template:uri",
   "user": "justinlittman",
   "group": "ld4p",
   "timestamp": "2020-08-27T01:08:59.558Z",
@@ -64,7 +64,7 @@
       ]
     },
     {
-      "@id": "https://api.development.sinopia.io/repository/sinopia:template:uri",
+      "@id": "https://api.development.sinopia.io/resource/sinopia:template:uri",
       "http://sinopia!io/vocabulary/hasResourceTemplate": [
         {
           "@value": "sinopia:template:resource"

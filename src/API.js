@@ -4,9 +4,8 @@ export default class API {
   constructor() {
   }
 
-  post(resource, postUri, newUri, templateId, addlProps) {
+  post(resource, postUri, templateId, addlProps) {
     const body = {data: resource, ...addlProps}
-    if(postUri !== newUri) body.uri = newUri
     if(templateId) body.templateId = templateId
     superagent
       .post(postUri)

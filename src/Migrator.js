@@ -9,24 +9,19 @@ import SerializerJsonld from '@rdfjs/serializer-jsonld-ext'
 import concatStream from 'concat-stream'
 
 export default class Migrator {
-  constructor(platformUrl, apiUrl, userFile, retainUri) {
+  constructor(platformUrl, apiUrl, userFile) {
     this.apiUrl = apiUrl
     this.crawler = new Crawler(platformUrl)
     this.api = new API()
     this.userMap = new UserMap(userFile)
     this.templateTransformer = new TemplateTransformer(apiUrl)
-    this.retainUri = retainUri
   }
 
   async migrate() {
     await this.crawler.crawl(async (resource, provenanceResource, uri, types) => {
       if (types.includes('http://www.w3.org/ns/ldp#NonRDFSource')) {
-        // The original URI for templates will be modified, even if retaining.
-        // For example, https://trellis.development.sinopia.io/repository/ld4p/ld4p:RT:bf2:Monograph:Item:Un-nested
-        // will become https://trellis.development.sinopia.io/repository/ld4p:RT:bf2:Monograph:Item:Un-nested
         const id = uri.match(/.*\/\/.*\/repository\/ld4p\/(.*)/)[1]
-        const postUri = `${this.apiUrl}/${id}`
-        const newUri = this.retainUri ? uri : postUri
+        const newUri = `${this.apiUrl}/resource/${id}`
         const provenanceDataset = await this.datasetFromJsonld(provenanceResource, uri, newUri)
         const [user, timestamp] = this.findProvenanceInfo(provenanceDataset, newUri)
         console.log(`${uri} -> template (as ${newUri})`)
@@ -37,12 +32,10 @@ export default class Migrator {
           user,
           timestamp
         }
-        await this.api.post(destTemplate, postUri, newUri, 'sinopia:template:resource', addlProps)
+        await this.api.post(destTemplate, newUri, 'sinopia:template:resource', addlProps)
       } else {
-        const id = uri.match(/.*\/\/.*\/repository\/(.*)/)[1]
-        const postUri = `${this.apiUrl}/${id}`
-        const newUri = this.retainUri ? uri : postUri
-        const group = id.split('/')[0]
+        const [, group, id] = uri.match(/.*\/\/.*\/repository\/(.+)\/(.+)/)
+        const newUri = `${this.apiUrl}/resource/${id}`
         console.log(`${uri} -> resource (as ${newUri})`)
         const dataset = await this.datasetFromJsonld(resource, uri, newUri)
         const provenanceDataset = await this.datasetFromJsonld(provenanceResource, uri, newUri)
@@ -54,7 +47,7 @@ export default class Migrator {
         addlProps.types = this.findType(newUri, dataset)
         addlProps.user = user
         addlProps.timestamp = timestamp
-        await this.api.post(newJsonld, postUri, newUri, templateId, addlProps)
+        await this.api.post(newJsonld, newUri, templateId, addlProps)
       }
     })
   }
@@ -73,7 +66,13 @@ export default class Migrator {
     const dataset = rdf.dataset()
 
     output.on('data', quad => {
-      if(quad.subject.value === oldUri || quad.subject.value === '') quad.subject = rdf.namedNode(newUri)
+      if(quad.subject.value === oldUri || quad.subject.value === ''){
+        quad.subject = rdf.namedNode(newUri)
+      } else {
+        quad.subject = this.cleanTerm(quad.subject)
+      }
+      quad.object = this.cleanTerm(quad.object)
+
       dataset.add(quad)
     })
 
@@ -127,10 +126,7 @@ export default class Migrator {
       quads.forEach((quad) => {
         if(quad.object.termType !== 'NamedNode') return
         const uri = quad.object.value
-        if(!uri) return
-        const id = uri.match(/.*\/\/.*\/repository\/(.*)/)[1]
-        const newUri = `${this.apiUrl}/${id}`
-        uris.push(this.retainUri ? uri : newUri)
+        if(uri) uris.push(uri)
       })
     })
     return uris
@@ -147,5 +143,13 @@ export default class Migrator {
     const latestProvInfo = provInfos[0]
     const username = this.userMap.usernameFor(latestProvInfo.associatedWith)
     return [username, latestProvInfo.atTime]
+  }
+
+  cleanTerm(term) {
+    if(term.termType !== 'NamedNode') return term
+    const match = term.value.match(/^https?:\/\/trellis.*\.sinopia\.io\/repository\/.+\/(.+)/)
+    if(!match) return term
+
+    return rdf.namedNode(`${this.apiUrl}/resource/${match[1]}`)
   }
 }

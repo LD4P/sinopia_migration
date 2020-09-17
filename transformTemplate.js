@@ -20,7 +20,7 @@ const transformer = async () => {
   if(replaceDots) output = replaceInKeys(output, '.', '!')
   if(addHeaders) output = {
     id: sourceTemplate.id,
-    uri: `${apiUrl}/${sourceTemplate.id}`,
+    uri: `${apiUrl}/resource/${sourceTemplate.id}`,
     user: "justinlittman",
     group: "ld4p",
     timestamp: new Date().toISOString(),

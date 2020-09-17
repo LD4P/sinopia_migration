@@ -6,7 +6,7 @@ export default class Request {
    * @param {string} typeURIs = LDP type URIs
    */
   constructor(uri, types, provenance) {
-    this.uri = uri
+    this.uri = encodeURI(uri)
     if (!types) {
       this.agent = superagent.get(this.uri)
     } else if (types.includes('http://www.w3.org/ns/ldp#NonRDFSource')) {
@@ -41,7 +41,7 @@ export default class Request {
       })
       .catch(err => {
         console.error(`error resolving ${this.uri}: ${err.message}`, err)
-        return null
+        throw err
       })
   }
 }

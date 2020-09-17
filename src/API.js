@@ -8,7 +8,7 @@ export default class API {
     const body = {data: resource, ...addlProps}
     if(templateId) body.templateId = templateId
     superagent
-      .post(postUri)
+      .post(encodeURI(postUri))
       .send(body)
       .set('accept', 'json')
       .then((res) =>{

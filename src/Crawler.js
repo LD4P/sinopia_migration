@@ -54,6 +54,7 @@ export default class Crawler {
 
     } catch(error) {
       console.error(`during crawl, error making mime type-specific request to ${uri}: ${error}`, error)
+      throw error
     }
   }
 
@@ -87,8 +88,8 @@ export default class Crawler {
         .map(link => link.match(linkHeaderRegex)) // extract URI from string
         .map(match => match?.groups?.link) // uses optional chaining (safe navigation operator) in case match failed
     } catch(error) {
-      this.logger.error(`during crawl, error making type-revealing request to ${uri}: ${error}`, error)
-      return []
+      console.error(`during crawl, error making type-revealing request to ${uri}: ${error}`, error)
+      throw error
     }
   }
 

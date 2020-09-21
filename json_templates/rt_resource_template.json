@@ -10,7 +10,7 @@
       "resourceTemplates": [],
       "mandatory": "true",
       "repeatable": "false",
-      "type": "resource",
+      "type": "literal",
       "remark": "The resource's Template Id, e.g., ld4p:RT:bf2:Title:AbbrTitle."
     },
     {

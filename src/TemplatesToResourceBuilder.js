@@ -24,7 +24,7 @@ export default class TemplatesToResourceBuilder {
 
   buildFromSubjectTemplate() {
     const subject = this.newSubject('sinopia:template:resource', 'http://sinopia.io/vocabulary/ResourceTemplate')
-    this.buildUriProperty(subject, 'http://sinopia.io/vocabulary/hasResourceId', [{uri: this.subjectTemplate.id}])
+    this.buildLiteralProperty(subject, 'http://sinopia.io/vocabulary/hasResourceId', [{literal: this.subjectTemplate.id}])
     this.buildUriProperty(subject, 'http://sinopia.io/vocabulary/hasClass', [{uri:this.subjectTemplate.class}])
     this.buildLiteralProperty(subject, 'http://www.w3.org/2000/01/rdf-schema#label', [{literal: this.subjectTemplate.label}])
     this.buildLiteralProperty(subject, 'http://sinopia.io/vocabulary/hasAuthor', [{literal: this.subjectTemplate.author}])

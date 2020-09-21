@@ -146,14 +146,19 @@ export default class Migrator {
   }
 
   cleanTerm(term) {
-    if(term.termType !== 'NamedNode') return term
+    if(term.termType !== 'NamedNode' && term.termType !== 'Literal') return term
     // This fixes bad data like undefinedrepository/tamu/6ed52bc9-e0b6-481e-8e1f-7cc716e11a6e
     const match1 = term.value.match(/^undefinedrepository\/.+\/(.+)/)
-    if(match1) return rdf.namedNode(`${this.apiUrl}/resource/${match1[1]}`)
+    if(match1) return this.newTerm(term, match1)
 
     const match2 = term.value.match(/^https?:\/\/trellis.*\.sinopia\.io\/repository\/.+\/(.+)/)
-    if(match2) return rdf.namedNode(`${this.apiUrl}/resource/${match2[1]}`)
+    if(match2) return this.newTerm(term, match2)
 
     return term
+  }
+
+  newTerm(term, match) {
+    const newUri = `${this.apiUrl}/resource/${match[1]}`
+    return term.termType === 'NamedNode' ? rdf.namedNode(newUri) : rdf.literal(newUri)
   }
 }

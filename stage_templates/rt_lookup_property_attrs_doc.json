@@ -3,7 +3,7 @@
   "uri": "https://api.stage.sinopia.io/resource/sinopia:template:property:lookup",
   "user": "justinlittman",
   "group": "ld4p",
-  "timestamp": "2020-09-17T16:16:54.443Z",
+  "timestamp": "2020-09-21T20:49:01.256Z",
   "templateId": "sinopia:template:resource",
   "data": [
     {
@@ -99,7 +99,7 @@
       ],
       "http://sinopia!io/vocabulary/hasResourceId": [
         {
-          "@id": "sinopia:template:property:lookup"
+          "@value": "sinopia:template:property:lookup"
         }
       ],
       "http://sinopia!io/vocabulary/hasClass": [

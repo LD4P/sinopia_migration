@@ -19,14 +19,27 @@ bin/transformTemplate json_templates/rt_uri.json http://localhost:3000 true true
 ```
 
 ## Load Mongo from Trellis
-Prerequisite:
-Retrieve a user backup file from the environment appropriate `sinopia-cognito` S3 bucket.
 
-Usage:
+### Prerequisite
+
+Retrieve a user backup file from the environment appropriate `sinopia-cognito` S3 bucket and place it in the `sinopia_migration` directory.
+
+### Usage
+
 ```
 bin/migrate <Trellis url> <API post url> <user file>
 ```
+
 For example:
+
+```
+bin/migrate https://trellis.development.sinopia.io/repository http://localhost:3000 user-backup_dev.json
+```
+
+### OSX-specific note
+
+If your MacOSX-based machine is sleeping and you want to prevent it during this operation, install `caffeinate` via `npm` and invoke the migration command like so:
+
 ```
 caffeinate -i bin/migrate https://trellis.development.sinopia.io/repository http://localhost:3000 user-backup_dev.json
 ```

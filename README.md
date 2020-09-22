@@ -6,6 +6,8 @@ Tools for migrating Sinopia:
 
 For migration instructions see [this doc](https://docs.google.com/document/d/10rtPjkuTuRw8mQEMAnAo6nxkv60Hz66N-K7cLq63IH0/edit?usp=sharing).
 
+Note: This requires Node version >= 14.11.x
+
 ## Convert resource template
 Usage:
 ```
@@ -26,5 +28,5 @@ bin/migrate <Trellis url> <API post url> <user file>
 ```
 For example:
 ```
-bin/migrate https://trellis.development.sinopia.io user-backup_dev.json http://localhost:3000
+caffeinate -i bin/migrate https://trellis.development.sinopia.io/repository http://localhost:3000 user-backup_dev.json
 ```

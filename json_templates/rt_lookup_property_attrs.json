@@ -20,7 +20,7 @@
       },
       "mandatory": "true",
       "repeatable": "true",
-      "type": "uri",
+      "type": "lookup",
       "remark": "Authorities for lookup."
     },
     {

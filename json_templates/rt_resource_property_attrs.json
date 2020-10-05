@@ -10,8 +10,18 @@
       "resourceTemplates": [],
       "mandatory": "true",
       "repeatable": "true",
-      "type": "resource",
-      "remark": "Resource template ids, e.g., ld4p:RT:bf2:Title:AbbrTitle."
+      "type": "lookup",
+      "remark": "Resource template ids, e.g., ld4p:RT:bf2:Title:AbbrTitle.",
+      "valueConstraint": {
+        "valueTemplateRefs": [],
+        "useValuesFrom": [
+          "urn:ld4p:sinopia:resourceTemplate"
+        ],
+        "valueDataType": {
+          "dataTypeURI": "http://sinopia.io/vocabulary/ResourceTemplate"
+        },
+        "defaults": []
+      }
     }
   ]
 }

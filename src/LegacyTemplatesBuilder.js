@@ -72,7 +72,7 @@ export default class LegacyTemplatesBuilder {
     if (!_.isEmpty(propertyTemplate?.valueConstraint?.valueTemplateRefs) && propertyTemplate.type === 'resource') {
       return 'resource'
     }
-    if (propertyTemplate.type === 'lookup' || propertyTemplate.type === 'resource') {
+    if (propertyTemplate.type === 'lookup' || propertyTemplate.type === 'resource' || propertyTemplate.type === 'uri') {
       return 'uri'
     }
     if (propertyTemplate.type === 'literal') {

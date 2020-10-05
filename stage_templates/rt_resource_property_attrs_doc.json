@@ -3,7 +3,7 @@
   "uri": "https://api.stage.sinopia.io/resource/sinopia:template:property:resource",
   "user": "justinlittman",
   "group": "ld4p",
-  "timestamp": "2020-09-21T20:49:02.196Z",
+  "timestamp": "2020-10-05T19:47:09.675Z",
   "templateId": "sinopia:template:resource",
   "data": [
     {
@@ -37,6 +37,22 @@
       "http://sinopia!io/vocabulary/hasPropertyType": [
         {
           "@id": "http://sinopia.io/vocabulary/propertyType/uri"
+        }
+      ],
+      "http://sinopia!io/vocabulary/hasLookupAttributes": [
+        {
+          "@id": "_:b3"
+        }
+      ]
+    },
+    {
+      "@id": "_:b3",
+      "@type": [
+        "http://sinopia.io/vocabulary/LookupPropertyTemplate"
+      ],
+      "http://sinopia!io/vocabulary/hasAuthority": [
+        {
+          "@id": "urn:ld4p:sinopia:resourceTemplate"
         }
       ]
     },
